@@ -1,4 +1,9 @@
 import { Particle } from "./Particle.js";
+import {
+  FOREGROUND_COLOR,
+  MAX_CONNECTION_LENGTH,
+  PARTICLE_SIZE,
+} from "./constants.js";
 
 const canvasElement = document.querySelector("#particles");
 const ctx = canvasElement.getContext("2d");
@@ -16,16 +21,9 @@ function setup() {
 }
 setup();
 
-const particles = Array(100)
+const particles = Array(40)
   .fill()
-  .map(
-    () =>
-      new Particle({
-        ctx: ctx,
-        xBound: canvasElement.clientWidth,
-        yBound: canvasElement.clientHeight,
-      })
-  );
+  .map(() => new Particle({ ctx }));
 
 let lastFrameTimestamp = 0;
 async function draw(timestamp) {
@@ -36,6 +34,25 @@ async function draw(timestamp) {
   ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
   particles.forEach((particle) => {
+    const nearParticles = particles.filter(
+      (testedParticle) =>
+        !testedParticle.checkedForConnections &&
+        particle.distanceTo(testedParticle) <= MAX_CONNECTION_LENGTH
+    );
+    nearParticles.forEach((nearParticle) => {
+      const distance = particle.distanceTo(nearParticle);
+      const lineOpacity =
+        (1 / Math.PI) * Math.acos((2 / MAX_CONNECTION_LENGTH) * distance - 1);
+
+      particle.ctx.strokeStyle = FOREGROUND_COLOR;
+      particle.ctx.lineWidth = PARTICLE_SIZE * lineOpacity;
+      particle.ctx.beginPath();
+      particle.ctx.moveTo(particle.x, particle.y);
+      particle.ctx.lineTo(nearParticle.x, nearParticle.y);
+      particle.ctx.stroke();
+    });
+    particle.checkedForConnections = true;
+
     particle.draw();
     particle.requestNewPosition(elapsedSinceLastFrame);
   });

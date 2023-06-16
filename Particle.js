@@ -6,12 +6,19 @@ import {
 import { randomFromArray, randomNumber } from "./helpers.js";
 
 export class Particle {
-  constructor({ xBound, yBound, ctx }) {
+  constructor({ ctx }) {
     this.ctx = ctx;
-    this.xBound = xBound;
-    this.yBound = yBound;
+    this.checkedForConnections = false;
     this.#setRandomPosition();
     this.#setRandomVelocity();
+  }
+
+  get xBound() {
+    return this.ctx.canvas.width;
+  }
+
+  get yBound() {
+    return this.ctx.canvas.height;
   }
 
   draw() {
@@ -35,6 +42,11 @@ export class Particle {
       this.x = newX;
       this.y = newY;
     }
+    this.checkedForConnections = false;
+  }
+
+  distanceTo(particle) {
+    return Math.sqrt((particle.x - this.x) ** 2 + (particle.y - this.y) ** 2);
   }
 
   #setRandomPosition() {
