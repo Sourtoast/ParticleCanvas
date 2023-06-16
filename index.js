@@ -21,7 +21,9 @@ function setup() {
 }
 setup();
 
-const particles = Array(40)
+const particles = Array(
+  Math.round((canvasElement.width * canvasElement.height) / 15_000)
+)
   .fill()
   .map(() => new Particle({ ctx }));
 
@@ -41,8 +43,10 @@ async function draw(timestamp) {
     );
     nearParticles.forEach((nearParticle) => {
       const distance = particle.distanceTo(nearParticle);
+      const magicFactor = MAX_CONNECTION_LENGTH / PARTICLE_SIZE;
       const lineOpacity =
-        (1 / Math.PI) * Math.acos((2 / MAX_CONNECTION_LENGTH) * distance - 1);
+        MAX_CONNECTION_LENGTH / (distance + magicFactor) -
+        distance / (MAX_CONNECTION_LENGTH + magicFactor);
 
       particle.ctx.strokeStyle = FOREGROUND_COLOR;
       particle.ctx.lineWidth = PARTICLE_SIZE * lineOpacity;
