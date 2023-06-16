@@ -1,3 +1,15 @@
+:root {
+    --background-color: #fff;
+    --text-color: #121212
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --text-color: #eee
+    }
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -5,12 +17,13 @@ body {
     height: 100vh;
     display: grid;
     place-items: center;
+    background-color: var(--background-color);
+    color: var(--text-color)
 }
 
 #particles-wrapper {
     width: 500px;
     height: 500px;
-    outline: 1px solid red;
 }
 
 #particles {
