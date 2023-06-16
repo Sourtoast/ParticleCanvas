@@ -1,27 +1,45 @@
+import { Particle } from "./Particle.js";
+
 const canvasElement = document.querySelector("#particles");
 const ctx = canvasElement.getContext("2d");
-const parentStyles = getComputedStyle(canvasElement.parentElement);
-
-const { backgroundColor, color: foregroundColor } = parentStyles;
 
 function resizeCanvasToMatchParent() {
   canvasElement.width = canvasElement.parentElement.clientWidth;
   canvasElement.height = canvasElement.parentElement.clientHeight;
 }
 
-function drawParticle() {
-  ctx.beginPath();
-  ctx.arc(canvasElement.width / 2, canvasElement.height / 2, 2, 0, Math.PI * 2);
-  ctx.fillStyle = foregroundColor;
-  console.log(foregroundColor);
-  ctx.fill();
-  ctx.closePath();
-}
-
 function setup() {
+  const pixelRatio = window.devicePixelRatio;
+  ctx.scale(pixelRatio, pixelRatio);
   resizeCanvasToMatchParent();
   window.addEventListener("resize", resizeCanvasToMatchParent);
 }
-
 setup();
-drawParticle();
+
+const particles = Array(100)
+  .fill()
+  .map(
+    () =>
+      new Particle({
+        ctx: ctx,
+        xBound: canvasElement.clientWidth,
+        yBound: canvasElement.clientHeight,
+      })
+  );
+
+let lastFrameTimestamp = 0;
+async function draw(timestamp) {
+  const timestampInSeconds = timestamp / 1000;
+  const elapsedSinceLastFrame = timestampInSeconds - lastFrameTimestamp;
+  lastFrameTimestamp = timestampInSeconds;
+
+  ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+  particles.forEach((particle) => {
+    particle.draw();
+    particle.requestNewPosition(elapsedSinceLastFrame);
+  });
+  requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
