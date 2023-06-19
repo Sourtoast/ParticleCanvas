@@ -1,9 +1,14 @@
 import {
   FOREGROUND_COLOR,
+  MAX_CONNECTION_LENGTH,
   MAX_PARTICLE_SPEED,
   PARTICLE_SIZE,
 } from "./constants.js";
-import { randomFromArray, randomNumber } from "./helpers.js";
+import {
+  calculateLineOpacity,
+  randomFromArray,
+  randomNumber,
+} from "./helpers.js";
 
 export class Particle {
   constructor({ ctx }) {
@@ -29,13 +34,26 @@ export class Particle {
     this.ctx.closePath();
   }
 
+  drawLineTo(particle) {
+    const distance = this.distanceTo(particle);
+    this.ctx.strokeStyle = FOREGROUND_COLOR;
+    this.ctx.lineWidth = PARTICLE_SIZE * calculateLineOpacity(distance);
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.x, this.y);
+    this.ctx.lineTo(particle.x, particle.y);
+    this.ctx.stroke();
+  }
+
   requestNewPosition(elapsedSinceLastFrame) {
     const newX = this.x + elapsedSinceLastFrame * this.velocityX;
     const newY = this.y + elapsedSinceLastFrame * this.velocityY;
     const isXOutOfBounds =
-      newX < -PARTICLE_SIZE || newX > this.xBound + PARTICLE_SIZE;
+      newX < -MAX_CONNECTION_LENGTH ||
+      newX > this.xBound + MAX_CONNECTION_LENGTH;
     const isYOutOfBounds =
-      newY < -PARTICLE_SIZE || newY > this.yBound + PARTICLE_SIZE;
+      newY < -MAX_CONNECTION_LENGTH ||
+      newY > this.yBound + MAX_CONNECTION_LENGTH;
+
     if (isXOutOfBounds || isYOutOfBounds) {
       this.#handleOutOfBounds();
     } else {
@@ -67,8 +85,11 @@ export class Particle {
 
     const snapTo = Math.random() > 0.5 ? "x" : "y";
 
-    if (snapTo === "x") x = randomFromArray([0, this.xBound]);
-    else if (snapTo === "y") y = randomFromArray([0, this.yBound]);
+    if (snapTo === "x") {
+      x = randomFromArray([0, this.xBound]);
+    } else if (snapTo === "y") {
+      y = randomFromArray([0, this.yBound]);
+    }
 
     if (x === this.xBound) velocityX = -velocityX;
     if (y === this.yBound) velocityY = -velocityY;

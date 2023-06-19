@@ -1,9 +1,5 @@
 import { Particle } from "./Particle.js";
-import {
-  FOREGROUND_COLOR,
-  MAX_CONNECTION_LENGTH,
-  PARTICLE_SIZE,
-} from "./constants.js";
+import { MAX_CONNECTION_LENGTH } from "./constants.js";
 
 const canvasElement = document.querySelector("#particles");
 const ctx = canvasElement.getContext("2d");
@@ -41,20 +37,8 @@ async function draw(timestamp) {
         !testedParticle.checkedForConnections &&
         particle.distanceTo(testedParticle) <= MAX_CONNECTION_LENGTH
     );
-    nearParticles.forEach((nearParticle) => {
-      const distance = particle.distanceTo(nearParticle);
-      const magicFactor = MAX_CONNECTION_LENGTH / PARTICLE_SIZE;
-      const lineOpacity =
-        MAX_CONNECTION_LENGTH / (distance + magicFactor) -
-        distance / (MAX_CONNECTION_LENGTH + magicFactor);
 
-      particle.ctx.strokeStyle = FOREGROUND_COLOR;
-      particle.ctx.lineWidth = PARTICLE_SIZE * lineOpacity;
-      particle.ctx.beginPath();
-      particle.ctx.moveTo(particle.x, particle.y);
-      particle.ctx.lineTo(nearParticle.x, nearParticle.y);
-      particle.ctx.stroke();
-    });
+    nearParticles.forEach((nearParticle) => particle.drawLineTo(nearParticle));
     particle.checkedForConnections = true;
 
     particle.draw();
