@@ -18,12 +18,20 @@ export class Particle {
     this.#setRandomVelocity();
   }
 
-  get xBound() {
-    return this.ctx.canvas.width;
+  get leftBound() {
+    return -MAX_CONNECTION_LENGTH;
   }
 
-  get yBound() {
-    return this.ctx.canvas.height;
+  get topBound() {
+    return -MAX_CONNECTION_LENGTH;
+  }
+
+  get rightBound() {
+    return this.ctx.canvas.width + MAX_CONNECTION_LENGTH;
+  }
+
+  get bottomBound() {
+    return this.ctx.canvas.height + MAX_CONNECTION_LENGTH;
   }
 
   draw() {
@@ -47,12 +55,8 @@ export class Particle {
   requestNewPosition(elapsedSinceLastFrame) {
     const newX = this.x + elapsedSinceLastFrame * this.velocityX;
     const newY = this.y + elapsedSinceLastFrame * this.velocityY;
-    const isXOutOfBounds =
-      newX < -MAX_CONNECTION_LENGTH ||
-      newX > this.xBound + MAX_CONNECTION_LENGTH;
-    const isYOutOfBounds =
-      newY < -MAX_CONNECTION_LENGTH ||
-      newY > this.yBound + MAX_CONNECTION_LENGTH;
+    const isXOutOfBounds = newX < this.leftBound || newX > this.rightBound;
+    const isYOutOfBounds = newY < this.topBound || newY > this.bottomBound;
 
     if (isXOutOfBounds || isYOutOfBounds) {
       this.#handleOutOfBounds();
@@ -68,8 +72,8 @@ export class Particle {
   }
 
   #setRandomPosition() {
-    this.x = randomNumber(0, this.xBound);
-    this.y = randomNumber(0, this.yBound);
+    this.x = randomNumber(this.leftBound, this.rightBound);
+    this.y = randomNumber(this.topBound, this.bottomBound);
   }
 
   #setRandomVelocity() {
@@ -78,21 +82,21 @@ export class Particle {
   }
 
   #handleOutOfBounds() {
-    let x = randomNumber(0, this.xBound);
-    let y = randomNumber(0, this.yBound);
+    let x = randomNumber(this.leftBound, this.rightBound);
+    let y = randomNumber(this.topBound, this.bottomBound);
     let velocityX = randomNumber(0, MAX_PARTICLE_SPEED);
     let velocityY = randomNumber(0, MAX_PARTICLE_SPEED);
 
     const snapTo = Math.random() > 0.5 ? "x" : "y";
 
     if (snapTo === "x") {
-      x = randomFromArray([0, this.xBound]);
+      x = randomFromArray([this.leftBound, this.rightBound]);
     } else if (snapTo === "y") {
-      y = randomFromArray([0, this.yBound]);
+      y = randomFromArray([this.topBound, this.bottomBound]);
     }
 
-    if (x === this.xBound) velocityX = -velocityX;
-    if (y === this.yBound) velocityY = -velocityY;
+    if (x === this.rightBound) velocityX = -velocityX;
+    if (y === this.bottomBound) velocityY = -velocityY;
 
     this.x = x;
     this.y = y;
