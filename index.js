@@ -1,5 +1,5 @@
 import { Particle } from "./Particle.js";
-import { MAX_CONNECTION_LENGTH } from "./constants.js";
+import { MAX_CONNECTION_LENGTH, PARTICLE_PER_PIXELS } from "./constants.js";
 
 const canvasElement = document.querySelector("#particles");
 const ctx = canvasElement.getContext("2d");
@@ -18,7 +18,7 @@ function setup() {
 setup();
 
 const particles = Array(
-  Math.round((canvasElement.width * canvasElement.height) / 15_000)
+  Math.round((canvasElement.width * canvasElement.height) / PARTICLE_PER_PIXELS)
 )
   .fill()
   .map(() => new Particle({ ctx }));
