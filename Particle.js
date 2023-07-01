@@ -44,12 +44,15 @@ export class Particle {
 
   drawLineTo(particle) {
     const distance = this.distanceTo(particle);
+    const opacity = calculateLineOpacity(distance);
+    this.ctx.globalAlpha = opacity;
     this.ctx.strokeStyle = FOREGROUND_COLOR;
-    this.ctx.lineWidth = PARTICLE_SIZE * calculateLineOpacity(distance);
+    this.ctx.lineWidth = PARTICLE_SIZE * opacity;
     this.ctx.beginPath();
     this.ctx.moveTo(this.x, this.y);
     this.ctx.lineTo(particle.x, particle.y);
     this.ctx.stroke();
+    this.ctx.globalAlpha = 1;
   }
 
   requestNewPosition(elapsedSinceLastFrame) {
